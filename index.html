@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mr. Plus — Grade 1 Addition</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 8px 24px;}
+
+#stage{width:100%;max-width:860px;background:#fff9f0;border-radius:22px;overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(0,0,0,0.7);display:flex;flex-direction:column;}
+
+/* floating bg */
+.float-sym{position:absolute;font-family:'Fredoka One',cursive;opacity:0.04;pointer-events:none;animation:float-up 12s linear infinite;}
+@keyframes float-up{from{transform:translateY(110%) rotate(-10deg);}to{transform:translateY(-10%) rotate(10deg);}}
+
+/* scenes */
+.scene{display:none;flex-direction:column;flex:1;}
+.scene.active{display:flex;}
+
+/* header band */
+.hband{width:100%;padding:13px 22px 11px;display:flex;flex-direction:column;justify-content:center;flex-shrink:0;}
+.hband h1{font-family:'Fredoka One',cursive;font-size:clamp(16px,2.4vw,26px);color:#fff;text-shadow:0 2px 5px rgba(0,0,0,0.3);}
+.hband p{font-size:clamp(11px,1.3vw,13px);color:rgba(255,255,255,0.9);font-weight:700;margin-top:2px;}
+
+/* content area */
+.content{display:flex;flex-direction:column;align-items:center;padding:12px 18px 16px;gap:12px;}
+
+/* ══ MR. PLUS AVATAR ══ */
+.mr-plus-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.mr-plus-svg{filter:drop-shadow(0 6px 18px rgba(0,0,0,0.3));}
+.mr-plus-label{font-family:'Fredoka One',cursive;font-size:18px;color:#8B5E00;background:linear-gradient(135deg,#FFD700,#FFA500);padding:4px 18px;border-radius:50px;box-shadow:0 3px 10px rgba(255,165,0,0.4);}
+
+/* TALKING animation for avatar mouth */
+.mr-talking #mouth-normal{display:none;}
+.mr-talking #mouth-talk{display:block;}
+#mouth-talk{display:none;}
+
+/* ══ SPEECH BUBBLE (rich male style) ══ */
+.rich-bubble{
+  background:linear-gradient(135deg,#2C1810,#4A2C1A);
+  border-radius:18px 18px 18px 4px;
+  padding:14px 20px;
+  box-shadow:0 4px 18px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,215,0,0.3);
+  border:2px solid #FFD700;
+  font-size:clamp(13px,1.65vw,17px);
+  line-height:1.65;color:#FFF8E7;font-weight:700;
+  width:100%;min-height:62px;
+}
+
+/* ══ STORY CARD ══ */
+.story-card{
+  background:#fff;border-radius:16px;
+  border:3px solid #FFD700;
+  padding:14px 18px;width:100%;
+  box-shadow:0 4px 16px rgba(255,165,0,0.2);
+}
+.story-text{font-size:clamp(14px,1.8vw,18px);font-weight:800;color:#2C1810;text-align:center;line-height:1.6;}
+.story-emoji{font-size:clamp(26px,3.5vw,40px);text-align:center;letter-spacing:4px;}
+
+/* ══ SUM DISPLAY ══ */
+.sum-display{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;flex-wrap:wrap;
+}
+.sum-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:72px;height:80px;border-radius:14px;
+  font-family:'Fredoka One',cursive;font-size:44px;color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,0.2);
+  border:3px solid rgba(255,255,255,0.4);
+  flex-shrink:0;
+}
+.sum-op{font-family:'Fredoka One',cursive;font-size:48px;color:#E74C3C;text-shadow:0 2px 6px rgba(231,76,60,0.4);}
+.sum-eq{font-family:'Fredoka One',cursive;font-size:48px;color:#27AE60;}
+.sum-box{
+  width:80px;height:80px;border-radius:14px;
+  font-family:'Fredoka One',cursive;font-size:44px;
+  border:3px dashed #ADB5BD;background:#F8F9FA;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#2D3436;transition:all 0.4s cubic-bezier(.34,1.56,.64,1);
+  flex-shrink:0;
+}
+.sum-box.revealed{
+  border-style:solid;border-color:#27AE60;
+  background:linear-gradient(145deg,#d4f5e2,#a8e8c4);
+  color:#155724;box-shadow:0 5px 16px rgba(40,167,69,0.3);
+  animation:drop-in 0.45s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes drop-in{from{transform:scale(1.4) translateY(-18px);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* head-in animation */
+.num-in-head{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:64px;height:72px;border-radius:12px;
+  font-family:'Fredoka One',cursive;font-size:38px;color:#fff;
+  animation:head-zoom 0.5s cubic-bezier(.34,1.56,.64,1);
+  border:3px solid rgba(255,255,255,0.5);
+}
+@keyframes head-zoom{from{transform:scale(0.4) translateY(-30px);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* finger count display */
+.finger-count{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;
+  background:#fff;border-radius:14px;padding:10px 16px;
+  border:2px solid #E0E0E0;
+}
+.finger-num{
+  font-family:'Fredoka One',cursive;font-size:32px;
+  padding:6px 16px;border-radius:10px;
+  animation:finger-pop 0.35s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes finger-pop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* ══ ACTIVITY SUMS ══ */
+.activity-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;width:100%;
+}
+.act-card{
+  background:#fff;border-radius:16px;padding:14px 16px;
+  border:3px solid #E0E0E0;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.07);
+  transition:border-color 0.3s;
+}
+.act-card.correct{border-color:#27AE60;background:linear-gradient(145deg,#f0fff4,#fff);}
+.act-card.wrong{border-color:#E74C3C;background:linear-gradient(145deg,#fff5f5,#fff);}
+.act-sum-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;}
+.act-num{font-family:'Fredoka One',cursive;font-size:34px;color:#2C3E50;}
+.act-op{font-family:'Fredoka One',cursive;font-size:34px;color:#E74C3C;}
+.act-eq{font-family:'Fredoka One',cursive;font-size:34px;color:#27AE60;}
+.act-input{
+  width:64px;height:64px;border-radius:12px;
+  font-family:'Fredoka One',cursive;font-size:34px;
+  text-align:center;border:3px dashed #ADB5BD;
+  background:#F8F9FA;color:#2D3436;
+  outline:none;transition:all 0.25s;
+}
+.act-input:focus{border-color:#FFD700;border-style:solid;background:#FFFEF0;box-shadow:0 0 0 3px rgba(255,215,0,0.3);}
+.act-input.correct{border-style:solid;border-color:#27AE60;background:linear-gradient(145deg,#d4f5e2,#a8e8c4);color:#155724;}
+.act-input.wrong{border-style:solid;border-color:#E74C3C;background:#FFE8E8;animation:shake 0.4s ease-in-out;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.act-hint{font-size:12px;font-weight:800;color:#999;text-align:center;min-height:16px;}
+.act-hint.show-hint{color:#E67E22;}
+.check-btn{
+  padding:7px 18px;border-radius:50px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;
+  background:linear-gradient(135deg,#FFD700,#FFA500);color:#2C1810;
+  box-shadow:0 3px 10px rgba(255,165,0,0.35);transition:all 0.18s;
+}
+.check-btn:hover{transform:translateY(-2px);}
+.check-btn:disabled{opacity:0.5;cursor:default;transform:none;}
+
+/* progress */
+#prog-wrap{width:100%;height:6px;background:rgba(0,0,0,0.1);flex-shrink:0;}
+#prog-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FFA500);width:0%;transition:width 0.5s linear;border-radius:0 4px 4px 0;}
+
+/* confetti text */
+.confetti-text{font-family:'Fredoka One',cursive;font-size:clamp(18px,2.6vw,30px);animation:rainbow 1.5s linear infinite;}
+@keyframes rainbow{0%{color:#FFD700;}25%{color:#FF6B6B;}50%{color:#4ECDC4;}75%{color:#A29BFE;}100%{color:#FFD700;}}
+
+/* controls bar */
+#controls-bar{width:100%;max-width:860px;background:rgba(255,255,255,0.06);border-radius:0 0 16px 16px;padding:10px 16px 13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl{padding:8px 16px;border-radius:50px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;border:none;cursor:pointer;transition:all 0.18s;box-shadow:0 3px 10px rgba(0,0,0,0.25);display:inline-flex;align-items:center;gap:5px;}
+.ctrl:hover{transform:translateY(-2px);filter:brightness(1.08);}
+.ctrl:active{transform:scale(0.96);}
+.ctrl-play{background:linear-gradient(135deg,#FFD700,#FFA500);color:#2C1810;}
+.ctrl-pause{background:linear-gradient(135deg,#FFC048,#E6A000);color:#fff;}
+.ctrl-rw{background:linear-gradient(135deg,#4ECDC4,#26B5AC);color:#fff;}
+.ctrl-fw{background:linear-gradient(135deg,#A29BFE,#6C5CE7);color:#fff;}
+.ctrl-mute{background:rgba(255,255,255,0.14);color:#fff;border:1.5px solid rgba(255,255,255,0.24);}
+#pdots{display:flex;gap:6px;align-items:center;margin-left:auto;}
+.sdot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s;}
+.sdot.done{background:#27AE60;}
+.sdot.active{background:#FFD700;transform:scale(1.4);}
+.sdot-lbl{font-size:10px;font-weight:800;color:rgba(255,255,255,0.5);white-space:nowrap;}
+.vol-wave{display:flex;align-items:flex-end;gap:2px;height:18px;}
+.vb{width:3px;border-radius:2px;background:#FFD700;height:4px;}
+.vol-wave.on .vb{animation:vw 0.5s ease-in-out infinite alternate;}
+.vol-wave.on .vb:nth-child(1){animation-delay:0s;}.vol-wave.on .vb:nth-child(2){animation-delay:0.13s;}.vol-wave.on .vb:nth-child(3){animation-delay:0.26s;}.vol-wave.on .vb:nth-child(4){animation-delay:0.39s;}
+@keyframes vw{from{height:3px;}to{height:16px;}}
+
+/* feedback modal */
+#fb-overlay{display:none;position:fixed;inset:0;background:rgba(10,6,30,0.88);z-index:200;align-items:center;justify-content:center;}
+#fb-overlay.open{display:flex;}
+#fb-box{background:#fff;border-radius:22px;padding:26px 26px 22px;width:min(94vw,480px);box-shadow:0 24px 60px rgba(0,0,0,0.55);animation:slide-up 0.38s cubic-bezier(.34,1.56,.64,1);}
+@keyframes slide-up{from{transform:translateY(36px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+#fb-box h2{font-family:'Fredoka One',cursive;font-size:22px;color:#D4A017;margin-bottom:4px;}
+.sub{font-size:13px;color:#777;font-weight:600;margin-bottom:14px;}
+.fb-emojis{display:flex;gap:8px;margin-bottom:16px;}
+.fb-e{flex:1;padding:10px 4px;border-radius:12px;border:2.5px solid #EEE;font-size:24px;text-align:center;cursor:pointer;transition:all 0.18s;background:#fafafa;}
+.fb-e:hover{transform:scale(1.07);}
+.fb-e.sel{border-color:#FFD700;background:#FFFEF0;}
+.fb-e span{display:block;font-size:10px;font-weight:800;color:#777;margin-top:3px;}
+.fb-input{width:100%;padding:10px 13px;border:2px solid #EEE;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;margin-bottom:9px;outline:none;transition:border-color 0.2s;}
+.fb-input:focus{border-color:#FFD700;}
+.fb-ta{height:68px;resize:none;}
+.fb-btns{display:flex;gap:9px;}
+#fb-send{flex:1;padding:11px;border-radius:50px;border:none;cursor:pointer;background:linear-gradient(135deg,#FFD700,#FFA500);color:#2C1810;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;transition:all 0.18s;}
+#fb-send:hover{transform:translateY(-2px);}
+#fb-cancel{padding:11px 18px;border-radius:50px;border:2px solid #EEE;background:#fff;color:#aaa;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
+#fb-thanks{display:none;text-align:center;padding:14px 0;}
+#fb-thanks .ck{font-size:52px;}
+#fb-thanks p{font-size:14px;font-weight:800;color:#27AE60;margin-top:7px;}
+
+/* scene backgrounds */
+.bg-intro{background:linear-gradient(155deg,#fff9e6,#fff5cc);}
+.bg-ex{background:linear-gradient(155deg,#fff9f0,#fff3e0);}
+.bg-act{background:linear-gradient(155deg,#f0fff4,#e8fff0);}
+.bg-done{background:linear-gradient(155deg,#fff9e6,#fffff0);}
+
+/* ══ FULL FEEDBACK SECTION ══ */
+#feedback-section{
+  display:none;width:100%;max-width:860px;
+  background:linear-gradient(155deg,#fff9e6,#fffbe8);
+  border-radius:22px;padding:28px 26px 24px;
+  box-shadow:0 24px 70px rgba(0,0,0,0.55);
+  margin-top:16px;
+}
+#feedback-section h2{font-family:'Fredoka One',cursive;font-size:22px;color:#8B5E00;text-align:center;margin-bottom:4px;}
+#feedback-section .fb-sub{font-size:13px;color:#B8860B;font-weight:700;text-align:center;margin-bottom:18px;}
+.fbr{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.fbr{grid-template-columns:1fr;}}
+.fbg{margin-bottom:16px;}
+.fbg label{display:block;font-weight:800;color:#5C3A00;margin-bottom:6px;font-size:.91em;}
+.fbg input[type=text],.fbg input[type=date],.fbg select,.fbg textarea{
+  width:100%;padding:11px 14px;border:2.5px solid #FFD700;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:.95em;
+  outline:none;background:white;transition:border-color .2s,box-shadow .2s;
+}
+.fbg input:focus,.fbg select:focus,.fbg textarea:focus{border-color:#FFA500;box-shadow:0 0 0 3px rgba(255,165,0,0.2);}
+.fbg textarea{min-height:80px;resize:vertical;}
+.fb-stars2{display:flex;gap:8px;font-size:1.85em;cursor:pointer;margin-top:4px;}
+.fb-star2{color:#ddd;transition:color .15s,transform .15s;user-select:none;}
+.fb-star2:hover,.fb-star2.on{color:#FFD700;}
+.fb-star2:hover{transform:scale(1.22);}
+.fb-submit2{
+  background:linear-gradient(135deg,#D4A017,#8B5E00);color:white;
+  border:none;border-radius:50px;padding:14px 52px;
+  font-family:'Fredoka One',cursive;font-size:1.22em;
+  cursor:pointer;display:block;margin:22px auto 0;
+  box-shadow:0 6px 22px rgba(139,94,0,.42);transition:transform .15s;
+}
+.fb-submit2:hover{transform:scale(1.05);}
+#fb-full-thanks{display:none;text-align:center;padding:22px 10px;}
+#fb-full-thanks h3{font-family:'Fredoka One',cursive;font-size:1.9em;color:#8B5E00;margin-bottom:12px;}
+/* confetti particles */
+.cparticle{position:fixed;border-radius:2px;pointer-events:none;z-index:999;animation:cffall 3s ease-in forwards;}
+@keyframes cffall{0%{opacity:1;transform:translateY(-20px) rotate(0deg);}100%{opacity:0;transform:translateY(100vh) rotate(720deg);}}
+</style>
+</head>
+<body>
+
+<!-- Netlify form detection -->
+<form name="mrplus-feedback" data-netlify="true" hidden>
+  <input name="child-name"><input name="parent-name"><input name="date-completed">
+  <input name="completion"><input name="rating-addition"><input name="strategy"><textarea name="comments"></textarea>
+</form>
+
+<div id="stage">
+  <!-- floating bg -->
+  <div class="float-sym" style="font-size:130px;left:3%;animation-delay:0s;animation-duration:13s;color:#FFD700;">+</div>
+  <div class="float-sym" style="font-size:90px;left:25%;animation-delay:4s;animation-duration:9s;color:#FFA500;">+</div>
+  <div class="float-sym" style="font-size:110px;left:58%;animation-delay:7s;animation-duration:11s;color:#FFD700;">+</div>
+  <div class="float-sym" style="font-size:75px;left:79%;animation-delay:2s;animation-duration:10s;color:#FFA500;">+</div>
+
+  <!-- ══ SCENE 0: TITLE / INTRO ══ -->
+  <div class="scene active bg-intro" id="sc0">
+    <div class="hband" style="background:linear-gradient(135deg,#8B5E00,#D4A017);">
+      <h1>🎩 Mr. Plus — Learning to Add!</h1>
+      <p>Grade 1 Mathematics · Addition · Balmoral Primary</p>
+    </div>
+    <div class="content">
+      <div class="mr-plus-wrap" id="mrp0">
+        <div class="mr-plus-svg" id="avatar0"></div>
+        <div class="mr-plus-label">Mr. Plus</div>
+      </div>
+      <div class="rich-bubble" id="bb0"></div>
+    </div>
+    <div id="prog-wrap"><div id="prog-fill"></div></div>
+  </div>
+
+  <!-- ══ SCENE 1: WHAT IS PLUS ══ -->
+  <div class="scene bg-intro" id="sc1">
+    <div class="hband" style="background:linear-gradient(135deg,#8B5E00,#D4A017);">
+      <h1>🎩 Mr. Plus Always Wants MORE!</h1>
+      <p>The + sign means we add — we get MORE!</p>
+    </div>
+    <div class="content">
+      <div class="mr-plus-wrap">
+        <div class="mr-plus-svg" id="avatar1"></div>
+        <div class="mr-plus-label">Mr. Plus</div>
+      </div>
+      <div class="rich-bubble" id="bb1"></div>
+      <div class="story-card">
+        <div class="story-text">When we see <span style="color:#E74C3C;font-size:1.4em;">+</span> it means <strong>ADD</strong> — always count ON to get MORE! 🎩</div>
+        <div style="margin-top:8px;font-size:13px;font-weight:800;color:#8B5E00;text-align:center;">Always put the BIGGEST number in your head first! 🧠<br>Then count on the smaller number with your fingers! 🖐️</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 2: EXAMPLE 1 — 3 + 2 ══ -->
+  <div class="scene bg-ex" id="sc2">
+    <div class="hband" style="background:linear-gradient(135deg,#C0392B,#E74C3C);">
+      <h1>🍎 Example 1: 3 + 2 = ?</h1>
+      <p>Watch how Mr. Plus solves this!</p>
+    </div>
+    <div class="content">
+      <div class="mr-plus-wrap">
+        <div class="mr-plus-svg" id="avatar2"></div>
+        <div class="mr-plus-label">Mr. Plus</div>
+      </div>
+      <div class="rich-bubble" id="bb2"></div>
+      <div class="story-card" id="story2" style="display:none;">
+        <div class="story-emoji" id="apples2">🍎🍎🍎</div>
+        <div class="story-text">I have <strong>3</strong> apples and I want <strong>2 more</strong>! How many altogether? 🍎</div>
+      </div>
+      <div class="sum-display" id="sum2" style="display:none;">
+        <div class="sum-num" id="s2n1" style="background:linear-gradient(145deg,#E74C3C,#C0392B);">3</div>
+        <div class="sum-op">+</div>
+        <div class="sum-num" id="s2n2" style="background:linear-gradient(145deg,#3498DB,#2980B9);">2</div>
+        <div class="sum-eq">=</div>
+        <div class="sum-box" id="s2ans"></div>
+      </div>
+      <div id="working2" style="display:none;width:100%;">
+        <div class="finger-count" id="fc2">
+          <span style="font-size:14px;font-weight:900;color:#8B5E00;">🧠 Head:</span>
+          <div id="head2"></div>
+          <span style="font-size:14px;font-weight:900;color:#8B5E00;">🖐️ Count on:</span>
+          <div id="fingers2" style="display:flex;gap:6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 3: EXAMPLE 2 — 2 + 4 ══ -->
+  <div class="scene bg-ex" id="sc3">
+    <div class="hband" style="background:linear-gradient(135deg,#27AE60,#1E8449);">
+      <h1>🚗 Example 2: 2 + 4 = ?</h1>
+      <p>Watch Mr. Plus again — he puts the BIGGEST in his head!</p>
+    </div>
+    <div class="content">
+      <div class="mr-plus-wrap">
+        <div class="mr-plus-svg" id="avatar3"></div>
+        <div class="mr-plus-label">Mr. Plus</div>
+      </div>
+      <div class="rich-bubble" id="bb3"></div>
+      <div class="story-card" id="story3" style="display:none;">
+        <div class="story-emoji">🚗🚗</div>
+        <div class="story-text">I have <strong>2</strong> cars and want <strong>4 more</strong>! How many altogether? 🚗</div>
+      </div>
+      <div class="sum-display" id="sum3" style="display:none;">
+        <div class="sum-num" style="background:linear-gradient(145deg,#3498DB,#2980B9);">2</div>
+        <div class="sum-op">+</div>
+        <div class="sum-num" style="background:linear-gradient(145deg,#27AE60,#1E8449);">4</div>
+        <div class="sum-eq">=</div>
+        <div class="sum-box" id="s3ans"></div>
+      </div>
+      <div id="working3" style="display:none;width:100%;">
+        <div class="finger-count" id="fc3">
+          <span style="font-size:14px;font-weight:900;color:#8B5E00;">🧠 Head:</span>
+          <div id="head3"></div>
+          <span style="font-size:14px;font-weight:900;color:#8B5E00;">🖐️ Count on:</span>
+          <div id="fingers3" style="display:flex;gap:6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 4: YOUR TURN — ACTIVITY ══ -->
+  <div class="scene bg-act" id="sc4">
+    <div class="hband" style="background:linear-gradient(135deg,#8B5E00,#D4A017);">
+      <h1>🎩 Your Turn! Solve the Sums!</h1>
+      <p>Remember: biggest number in your head, count on with fingers!</p>
+    </div>
+    <div class="content">
+      <div class="rich-bubble" id="bb4" style="font-size:clamp(12px,1.5vw,15px);"></div>
+      <div class="activity-grid" id="act-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 5: WELL DONE ══ -->
+  <div class="scene bg-done" id="sc5">
+    <div class="hband" style="background:linear-gradient(135deg,#8B5E00,#D4A017);">
+      <h1>🏆 Fantastic Work!</h1>
+    </div>
+    <div class="content">
+      <div class="mr-plus-wrap">
+        <div class="mr-plus-svg" id="avatar5"></div>
+        <div class="mr-plus-label">Mr. Plus</div>
+      </div>
+      <div style="font-size:52px;animation:spin-in 0.6s cubic-bezier(.34,1.56,.64,1);">🎉</div>
+      <div class="confetti-text">YOU ARE AN ADDITION SUPERSTAR! 🎩</div>
+      <div class="rich-bubble" id="bb5"></div>
+      <div style="background:#fff;border-radius:14px;padding:10px 16px;border:2px solid #FFD700;width:100%;max-width:600px;">
+        <div style="font-size:11px;font-weight:800;color:#8B5E00;margin-bottom:4px;">🏠 For Mum and Dad:</div>
+        <div style="font-size:13px;color:#444;font-weight:600;line-height:1.6;">Your child practised adding numbers today using the count-on strategy. To practise at home: use objects like coins, stones or sweets. Say "I have 4 sweets, and I want 2 more — how many altogether?" Always remind her to put the biggest number in her head first, then count on with her fingers. Well done! 💕</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS: Play, Pause, Rewind, Forward, Mute -->
+<div id="controls-bar">
+  <button class="ctrl ctrl-play"  id="btn-start"   onclick="startVideo()">▶ Play Lesson</button>
+  <button class="ctrl ctrl-pause" id="btn-pause"   onclick="togglePause()" style="display:none;">⏸ Pause</button>
+  <button class="ctrl ctrl-rw"    id="btn-rewind"  onclick="rewindScene()" style="display:none;">⏮ Rewind</button>
+  <button class="ctrl ctrl-fw"    id="btn-forward" onclick="forwardScene()" style="display:none;">⏭ Forward</button>
+  <button class="ctrl ctrl-mute"  id="btn-mute"    onclick="toggleMute()">🔊</button>
+  <div class="vol-wave" id="vwave"><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div></div>
+  <div id="pdots">
+    <span class="sdot-lbl">Lesson:</span>
+    <div class="sdot active" id="d0"></div><div class="sdot" id="d1"></div><div class="sdot" id="d2"></div>
+    <div class="sdot" id="d3"></div><div class="sdot" id="d4"></div><div class="sdot" id="d5"></div>
+  </div>
+  <button class="ctrl" id="btn-fb"     onclick="showFeedbackSection()" style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#2C1810;display:none;">📋 Feedback</button>
+  <button class="ctrl" id="btn-replay" onclick="replayVideo()" style="background:linear-gradient(135deg,#6C5CE7,#A29BFE);color:#fff;display:none;">🔄 Play Again</button>
+</div>
+
+<!-- FEEDBACK MODAL (legacy — kept hidden) -->
+<div id="fb-overlay">
+  <div id="fb-box">
+    <h2>📝 Parent Feedback</h2>
+    <div class="sub">Tell the teacher how your child did with Mr. Plus today!</div>
+    <div class="fb-emojis">
+      <div class="fb-e" onclick="selE(this,'🟢')">🟢<span>Got it!</span></div>
+      <div class="fb-e" onclick="selE(this,'🟡')">🟡<span>Almost</span></div>
+      <div class="fb-e" onclick="selE(this,'🔴')">🔴<span>Struggled</span></div>
+      <div class="fb-e" onclick="selE(this,'⏭️')">⏭️<span>Didn't try</span></div>
+    </div>
+    <input class="fb-input" id="fb-name" placeholder="Child's name (optional)"/>
+    <textarea class="fb-input fb-ta" id="fb-note" placeholder="Any message for the teacher? (optional)"></textarea>
+    <div class="fb-btns">
+      <button id="fb-cancel" onclick="closeFB()">Cancel</button>
+      <button id="fb-send" onclick="sendFB()">✅ Send to Teacher</button>
+    </div>
+    <div id="fb-thanks"><div class="ck">✅</div><p>Feedback sent! Thank you! 💕</p></div>
+  </div>
+</div>
+
+<!-- ══ FULL FEEDBACK SECTION ══ -->
+<div id="feedback-section">
+  <div id="fb-full-form">
+    <h2>📋 Parent Feedback for the Teacher</h2>
+    <p class="fb-sub">Please take a moment to let the teacher know how your child did with Mr. Plus today!</p>
+
+    <div class="fbr">
+      <div class="fbg">
+        <label>Child's Name</label>
+        <input type="text" id="fbc-child" placeholder="Enter child's name">
+      </div>
+      <div class="fbg">
+        <label>Parent / Guardian Name</label>
+        <input type="text" id="fbc-parent" placeholder="Enter your name">
+      </div>
+    </div>
+
+    <div class="fbr">
+      <div class="fbg">
+        <label>Date Completed</label>
+        <input type="date" id="fbc-date">
+      </div>
+      <div class="fbg">
+        <label>Lesson Completion</label>
+        <select id="fbc-completion">
+          <option value="">Select…</option>
+          <option value="full">✅ Completed the full lesson</option>
+          <option value="pauses">⏸ Completed with many pauses</option>
+          <option value="partial">🔄 Did not complete — will retry</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fbg">
+      <label>How well did your child understand addition? ⭐</label>
+      <div class="fb-stars2" id="fbstars">
+        <span class="fb-star2" data-v="1">★</span>
+        <span class="fb-star2" data-v="2">★</span>
+        <span class="fb-star2" data-v="3">★</span>
+        <span class="fb-star2" data-v="4">★</span>
+        <span class="fb-star2" data-v="5">★</span>
+      </div>
+    </div>
+
+    <div class="fbg">
+      <label>Did your child use the "biggest number in head, count on" strategy?</label>
+      <select id="fbc-strategy">
+        <option value="">Select…</option>
+        <option value="yes-both">✨ Yes — used it independently</option>
+        <option value="yes-help">👍 Used it with a little help</option>
+        <option value="inconsistent">🤔 Not consistently</option>
+        <option value="unsure">❓ Not sure</option>
+      </select>
+    </div>
+
+    <div class="fbg">
+      <label>Additional Comments or Questions for the Teacher</label>
+      <textarea id="fbc-comments" placeholder="Share any observations, questions or concerns…"></textarea>
+    </div>
+
+    <button class="fb-submit2" onclick="submitFullFeedback()">📤 Submit Feedback</button>
+  </div>
+
+  <div id="fb-full-thanks">
+    <h3>🎉 Thank You!</h3>
+    <p style="font-size:1.05em;color:#666;margin-bottom:14px;">Your feedback has been noted. Thank you for supporting your child's learning today!</p>
+    <p style="font-size:2.2em;">🎩 ⭐ 🎊</p>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// MR. PLUS SVG AVATAR — rich man in plus-sign pose
+// ══════════════════════════════════════════════════════
+function mrPlusSVG(talking=false, size=160){
+  const w=size, h=size*1.45;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 160 232" xmlns="http://www.w3.org/2000/svg">
+  <!-- shadow -->
+  <ellipse cx="80" cy="228" rx="40" ry="5" fill="rgba(0,0,0,0.15)"/>
+
+  <!-- LEGS -->
+  <rect x="54" y="168" width="20" height="52" rx="8" fill="#1A1A2E"/>
+  <rect x="86" y="168" width="20" height="52" rx="8" fill="#1A1A2E"/>
+  <!-- shoes -->
+  <ellipse cx="64" cy="220" rx="14" ry="8" fill="#0D0D1A"/>
+  <ellipse cx="96" cy="220" rx="14" ry="8" fill="#0D0D1A"/>
+
+  <!-- SUIT BODY — the vertical bar of the + -->
+  <rect x="44" y="95" width="72" height="80" rx="10" fill="#1A237E"/>
+  <!-- suit lapels -->
+  <polygon points="80,100 60,120 72,120" fill="#E8EAF6"/>
+  <polygon points="80,100 100,120 88,120" fill="#E8EAF6"/>
+  <!-- NO TIE — removed -->
+  <!-- suit buttons -->
+  <circle cx="80" cy="155" r="3" fill="#FFD700"/>
+  <circle cx="80" cy="165" r="3" fill="#FFD700"/>
+  <!-- pocket square -->
+  <rect x="92" y="102" width="14" height="8" rx="2" fill="#FFD700" opacity="0.9"/>
+
+  <!-- ARMS — horizontal bar of + sign, both pointing sideways -->
+  <!-- left arm -->
+  <rect x="2" y="102" width="42" height="18" rx="9" fill="#1A237E"/>
+  <!-- left hand -->
+  <ellipse cx="10" cy="111" rx="10" ry="12" fill="#FDBCB4"/>
+  <!-- left cufflink -->
+  <rect x="40" y="104" width="6" height="14" rx="3" fill="#FFD700"/>
+
+  <!-- right arm -->
+  <rect x="116" y="102" width="42" height="18" rx="9" fill="#1A237E"/>
+  <!-- right hand -->
+  <ellipse cx="150" cy="111" rx="10" ry="12" fill="#FDBCB4"/>
+  <!-- right cufflink -->
+  <rect x="114" y="104" width="6" height="14" rx="3" fill="#FFD700"/>
+
+  <!-- NECK -->
+  <rect x="68" y="82" width="24" height="20" rx="8" fill="#FDBCB4"/>
+
+  <!-- HEAD -->
+  <ellipse cx="80" cy="68" rx="30" ry="34" fill="#FDBCB4"/>
+  <!-- ear left -->
+  <ellipse cx="51" cy="68" rx="7" ry="10" fill="#F0A090"/>
+  <!-- ear right -->
+  <ellipse cx="109" cy="68" rx="7" ry="10" fill="#F0A090"/>
+  <!-- hair -->
+  <ellipse cx="80" cy="38" rx="29" ry="12" fill="#3D2B1F"/>
+  <!-- eyebrows — thick and distinguished -->
+  <rect x="56" y="50" width="18" height="5" rx="3" fill="#3D2B1F"/>
+  <rect x="86" y="50" width="18" height="5" rx="3" fill="#3D2B1F"/>
+  <!-- eyes -->
+  <ellipse cx="65" cy="62" rx="7" ry="8" fill="#fff"/>
+  <ellipse cx="95" cy="62" rx="7" ry="8" fill="#fff"/>
+  <circle cx="66" cy="63" r="4" fill="#3D2B1F"/>
+  <circle cx="96" cy="63" r="4" fill="#3D2B1F"/>
+  <circle cx="67.5" cy="61.5" r="1.5" fill="#fff"/>
+  <circle cx="97.5" cy="61.5" r="1.5" fill="#fff"/>
+  <!-- nose -->
+  <ellipse cx="80" cy="73" rx="5" ry="4" fill="#F0A090"/>
+  <!-- MOUTH -->
+  ${talking
+    ? `<ellipse cx="80" cy="84" rx="9" ry="6" fill="#3D2B1F"/>
+       <ellipse cx="80" cy="85" rx="7" ry="4" fill="#E74C3C"/>
+       <ellipse cx="80" cy="83" rx="9" ry="3" fill="#FDBCB4"/>`
+    : `<path d="M68 83 Q80 92 92 83" fill="none" stroke="#3D2B1F" stroke-width="3" stroke-linecap="round"/>`
+  }
+  <!-- moustache -->
+  <path d="M68 79 Q74 84 80 80 Q86 84 92 79" fill="#3D2B1F" stroke="#3D2B1F" stroke-width="1"/>
+
+  <!-- JEWELLERY — gold chain, ring, watch -->
+  <!-- gold chain -->
+  <path d="M62 95 Q80 88 98 95" fill="none" stroke="#FFD700" stroke-width="3" opacity="0.9"/>
+  <circle cx="80" cy="89" r="4" fill="#FFD700"/>
+  <!-- ring left hand -->
+  <rect x="6" y="117" width="8" height="5" rx="2" fill="#FFD700"/>
+  <circle cx="10" cy="118" r="2" fill="#E74C3C"/>
+  <!-- watch right arm -->
+  <rect x="128" y="104" width="8" height="14" rx="3" fill="#FFD700"/>
+  <circle cx="132" cy="111" r="3" fill="#fff"/>
+  <line x1="132" y1="111" x2="132" y2="108" stroke="#1A237E" stroke-width="1.5"/>
+  <line x1="132" y1="111" x2="134" y2="113" stroke="#1A237E" stroke-width="1.5"/>
+
+  <!-- HAT — top hat -->
+  <rect x="50" y="18" width="60" height="36" rx="5" fill="#1A1A2E"/>
+  <rect x="38" y="50" width="84" height="10" rx="5" fill="#1A1A2E"/>
+  <!-- hat band -->
+  <rect x="50" y="46" width="60" height="8" rx="3" fill="#FFD700"/>
+  <!-- hat shine -->
+  <rect x="58" y="22" width="8" height="24" rx="4" fill="rgba(255,255,255,0.12)"/>
+
+  <!-- PLUS SIGN on body — large, bold, red, impossible to miss -->
+  <!-- vertical bar of + -->
+  <rect x="74" y="108" width="12" height="54" rx="4" fill="#E8112D" opacity="0.95"/>
+  <!-- horizontal bar of + -->
+  <rect x="55" y="127" width="50" height="12" rx="4" fill="#E8112D" opacity="0.95"/>
+  <!-- white outline glow for contrast -->
+  <rect x="73" y="107" width="14" height="56" rx="5" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <rect x="54" y="126" width="52" height="14" rx="5" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  </svg>`;
+}
+
+// inject avatars
+function injectAvatars(){
+  ['avatar0','avatar1','avatar2','avatar3','avatar5'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=mrPlusSVG(false,150);
+  });
+}
+
+// ── LIP SYNC — mouth alternates open/closed every 130ms while speaking ──
+let lipSyncTimer=null;
+function startLipSync(scIdx){
+  stopLipSync();
+  const id='avatar'+scIdx;
+  let state=false;
+  // open mouth immediately
+  const el=document.getElementById(id);
+  if(el) el.innerHTML=mrPlusSVG(true,150);
+  lipSyncTimer=setInterval(()=>{
+    state=!state;
+    const e=document.getElementById(id);
+    if(e) e.innerHTML=mrPlusSVG(state,150);
+  },130);
+}
+function stopLipSync(){
+  if(lipSyncTimer){clearInterval(lipSyncTimer);lipSyncTimer=null;}
+}
+// set talking state on avatar
+function setTalkingAvatar(scIdx, yes){
+  const id='avatar'+scIdx;
+  const el=document.getElementById(id);
+  if(!el) return;
+  if(yes){ startLipSync(scIdx); }
+  else { stopLipSync(); el.innerHTML=mrPlusSVG(false,150); }
+}
+
+// ══════════════════════════════════════════════════════
+// AUDIO — bubble/plop sound for "in head" moment
+// ══════════════════════════════════════════════════════
+function bubbleSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,0.08,0.16,0.24,0.32].forEach((t,i)=>{
+      const o=ctx.createOscillator();
+      const g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(600+i*80,ctx.currentTime+t);
+      o.frequency.exponentialRampToValueAtTime(300+i*40,ctx.currentTime+t+0.12);
+      g.gain.setValueAtTime(0.15,ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.15);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.15);
+    });
+  }catch(e){}
+}
+
+function beep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.type='square';o.frequency.value=440;
+    g.gain.setValueAtTime(0.15,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let muted=false,paused=false,playing=false,currentSc=0;
+let bTimer=null,selEmoji='';
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+async function waitPause(){while(paused)await delay(100);}
+
+// ══════════════════════════════════════════════════════
+// SPEECH — pause-aware, resumes from start of sentence
+// ══════════════════════════════════════════════════════
+function speak(text,scIdx){
+  return new Promise(async resolve=>{
+    while(true){
+      await waitPause();
+      setTalkingAvatar(scIdx,true);
+      setBubble(scIdx,text);
+      const vw=document.getElementById('vwave');if(vw)vw.classList.add('on');
+
+      if(!window.speechSynthesis||muted){
+        let interrupted=false;
+        const words=text.split(' ');
+        for(let i=0;i<words.length;i++){
+          if(paused){interrupted=true;break;}
+          await delay(82);
+        }
+        if(!interrupted){setTalkingAvatar(scIdx,false);if(vw)vw.classList.remove('on');resolve();return;}
+        setTalkingAvatar(scIdx,false);if(vw)vw.classList.remove('on');continue;
+      }
+
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      // Rich male voice
+      u.rate=0.88;u.pitch=0.88;u.volume=1;
+      const vs=window.speechSynthesis.getVoices();
+      // prefer deep male voices
+      const wantM=['Daniel','Google UK English Male','Microsoft David','Alex','Fred','Thomas','George','Viktor','Microsoft George'];
+      let v=null;
+      for(const nm of wantM){const f=vs.find(x=>x.name.includes(nm));if(f){v=f;break;}}
+      if(!v)v=vs.find(x=>x.lang.startsWith('en')&&x.name.toLowerCase().includes('male'))||vs.find(x=>x.lang.startsWith('en'))||vs[0];
+      if(v)u.voice=v;
+
+      const result=await new Promise(inner=>{
+        u.onend=()=>inner('done');
+        u.onerror=(e)=>inner((e.error==='interrupted'||e.error==='canceled')?'paused':'done');
+        window.speechSynthesis.speak(u);
+      });
+
+      setTalkingAvatar(scIdx,false);if(vw)vw.classList.remove('on');
+      if(result==='done'){resolve();return;}
+      await waitPause();await delay(180);
+    }
+  });
+}
+
+function stopSpeech(){stopLipSync();if(window.speechSynthesis)window.speechSynthesis.cancel();const vw=document.getElementById('vwave');if(vw)vw.classList.remove('on');}
+
+function setBubble(idx,text){
+  const el=document.getElementById('bb'+idx);if(!el)return;
+  el.innerHTML='';const words=text.split(' ');let i=0;
+  if(bTimer)clearInterval(bTimer);
+  const pace=Math.max(48,(text.length*48)/words.length);
+  bTimer=setInterval(()=>{
+    if(i<words.length){el.innerHTML=words.slice(0,i+1).join(' ')+'<span style="display:inline-block;width:2px;height:15px;background:#FFD700;vertical-align:middle;margin-left:2px;"></span>';i++;}
+    else{clearInterval(bTimer);el.innerHTML=text;}
+  },pace);
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE MANAGEMENT
+// ══════════════════════════════════════════════════════
+function goScene(idx){
+  document.querySelectorAll('.scene').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  const el=document.getElementById('sc'+idx);if(el){el.classList.add('active');el.style.display='flex';}
+  currentSc=idx;
+  for(let i=0;i<6;i++){const d=document.getElementById('d'+i);if(!d)continue;d.classList.remove('active','done');if(i<idx)d.classList.add('done');else if(i===idx)d.classList.add('active');}
+  const pf=document.getElementById('prog-fill');if(pf)pf.style.width=((idx/5)*100)+'%';
+}
+
+// ══════════════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════════════
+function togglePause(){
+  paused=!paused;
+  const btn=document.getElementById('btn-pause');
+  if(paused){btn.textContent='▶ Resume';if(window.speechSynthesis)window.speechSynthesis.cancel();stopLipSync();setTalkingAvatar(currentSc,false);}
+  else{btn.textContent='⏸ Pause';}
+}
+function toggleMute(){muted=!muted;document.getElementById('btn-mute').textContent=muted?'🔇':'🔊';if(muted)stopSpeech();}
+function rewindScene(){stopSpeech();paused=false;document.getElementById('btn-pause').textContent='⏸ Pause';playing=false;const t=Math.max(0,currentSc-1);setTimeout(()=>{playing=true;runFrom(t);},200);}
+function forwardScene(){stopSpeech();paused=false;document.getElementById('btn-pause').textContent='⏸ Pause';playing=false;const t=Math.min(5,currentSc+1);setTimeout(()=>{playing=true;runFrom(t);},200);}
+
+// ══════════════════════════════════════════════════════
+// MAIN FLOW
+// ══════════════════════════════════════════════════════
+async function startVideo(){
+  if(playing)return;playing=true;
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('btn-pause').style.display='inline-flex';
+  document.getElementById('btn-rewind').style.display='inline-flex';
+  document.getElementById('btn-forward').style.display='inline-flex';
+  await runFrom(0);
+}
+async function runFrom(start){
+  for(let sc=start;sc<6;sc++){
+    if(!playing)break;
+    await waitPause();
+    if(sc===0)await sc0();
+    else if(sc===1)await sc1();
+    else if(sc===2)await sc2();
+    else if(sc===3)await sc3();
+    else if(sc===4)await sc4();
+    else if(sc===5)await sc5();
+    await delay(280);
+  }
+  if(playing){
+    document.getElementById('btn-fb').style.display='inline-flex';
+    document.getElementById('btn-replay').style.display='inline-flex';
+    document.getElementById('btn-pause').style.display='none';
+    playing=false;
+  }
+}
+async function replayVideo(){
+  stopSpeech();playing=false;paused=false;
+  document.getElementById('btn-fb').style.display='none';
+  document.getElementById('btn-replay').style.display='none';
+  document.getElementById('btn-pause').textContent='⏸ Pause';
+  await delay(200);startVideo();
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE 0: INTRO
+// ══════════════════════════════════════════════════════
+async function sc0(){
+  goScene(0);await delay(350);
+  await speak(`Good day, young mathematician!`,0);
+  await delay(700);await waitPause();
+  await speak(`My name is Mister Plus, and I am absolutely delighted to meet you!`,0);
+  await delay(800);await waitPause();
+  await speak(`Now, do you see this magnificent red sign on my body?`,0);
+  await delay(700);await waitPause();
+  await speak(`That is the plus sign. And do you know what it means?`,0);
+  await delay(800);await waitPause();
+  await speak(`It means... more!`,0);
+  await delay(700);await waitPause();
+  await speak(`I always want more! More gold, more jewels, more of everything! Ha-ha!`,0);
+  await delay(800);await waitPause();
+  await speak(`And in maths, the plus sign means we add. When we add, we always get more!`,0);
+  await delay(900);await waitPause();
+  await speak(`So, are you ready to learn? Let's go!`,0);
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE 1: CONCEPT
+// ══════════════════════════════════════════════════════
+async function sc1(){
+  goScene(1);await delay(300);
+  await speak(`Now listen carefully, because this is my golden secret!`,1);
+  await delay(800);await waitPause();
+  await speak(`When we add numbers, we always count on.`,1);
+  await delay(700);await waitPause();
+  await speak(`That means we keep going — we don't stop and start again.`,1);
+  await delay(800);await waitPause();
+  await speak(`And here is the clever part.`,1);
+  await delay(600);await waitPause();
+  await speak(`Always put the biggest number in your head first.`,1);
+  await delay(800);await waitPause();
+  await speak(`Then you show the smaller number on your fingers, and count on from there.`,1);
+  await delay(800);await waitPause();
+  await speak(`Let me show you exactly how it works!`,1);
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE 2: EXAMPLE 1 — 3 + 2 = 5
+// ══════════════════════════════════════════════════════
+async function sc2(){
+  goScene(2);await delay(300);
+  await speak(`Here is my first story.`,2);
+  await delay(600);await waitPause();
+  await speak(`I have 3 magnificent apples.`,2);
+  await delay(700);await waitPause();
+  await speak(`But I am Mister Plus, and I always want more!`,2);
+  await delay(700);await waitPause();
+  await speak(`So I want 2 more apples.`,2);
+  await delay(700);await waitPause();
+  await speak(`How many apples will I have altogether?`,2);
+  await delay(900);await waitPause();
+
+  document.getElementById('story2').style.display='block';
+  await delay(500);await waitPause();
+  await speak(`Let's write this as a sum!`,2);
+
+  document.getElementById('sum2').style.display='flex';
+  await delay(600);await waitPause();
+
+  await speak(`There we go. Three plus two equals... something wonderful!`,2);
+  await delay(700);await waitPause();
+  await speak(`Now, which is the biggest number?`,2);
+  await delay(700);await waitPause();
+  await speak(`It's three! So we put three in our head. Here it goes!`,2);
+
+  // head-in animation + bubble sound
+  await delay(400);
+  bubbleSound();
+  const headEl=document.getElementById('head2');
+  headEl.innerHTML=`<div class="num-in-head" style="background:linear-gradient(145deg,#E74C3C,#C0392B);">3</div><span style="font-size:20px;margin-left:4px;">🧠</span>`;
+  document.getElementById('working2').style.display='block';
+  await delay(800);await waitPause();
+
+  await speak(`Three is in our head!`,2);
+  await delay(700);await waitPause();
+  await speak(`Now I hold up 2 fingers on my other hand, and I count on from three.`,2);
+  await delay(700);await waitPause();
+  await delay(400);await waitPause();
+
+  // count on fingers: 4, 5
+  const fingersEl=document.getElementById('fingers2');
+  const countOns=['4','5'];
+  const fingerColors=['#E67E22','#27AE60'];
+  for(let i=0;i<2;i++){
+    await waitPause();
+    const span=document.createElement('div');
+    span.className='finger-num';
+    span.style.background=`linear-gradient(145deg,${fingerColors[i]},${fingerColors[i]}aa)`;
+    span.style.color='#fff';
+    span.textContent=countOns[i];
+    fingersEl.appendChild(span);
+    // speak the count-on number
+    if(!muted&&window.speechSynthesis){
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(countOns[i]);
+      u.rate=0.82;u.pitch=0.88;
+      const vs=window.speechSynthesis.getVoices();
+      const wantM=['Daniel','Google UK English Male','Microsoft David','Alex'];
+      let v=null;for(const nm of wantM){const f=vs.find(x=>x.name.includes(nm));if(f){v=f;break;}}
+      if(!v)v=vs.find(x=>x.lang.startsWith('en'))||vs[0];
+      if(v)u.voice=v;
+      await new Promise(r=>{u.onend=r;u.onerror=r;window.speechSynthesis.speak(u);});
+    } else { await delay(600); }
+    await delay(300);
+  }
+
+  await delay(300);await waitPause();
+  const ansBox=document.getElementById('s2ans');
+  ansBox.textContent='5';ansBox.classList.add('revealed');
+  await speak(`Five!`,2);
+  await delay(700);await waitPause();
+  await speak(`I will have five apples altogether.`,2);
+  await delay(700);await waitPause();
+  await speak(`Three plus two equals five.`,2);
+  await delay(800);await waitPause();
+  await speak(`You watched that beautifully — well done!`,2);
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE 3: EXAMPLE 2 — 2 + 4 = 6
+// ══════════════════════════════════════════════════════
+async function sc3(){
+  goScene(3);await delay(300);
+  await speak(`Splendid! Now for my second story.`,3);
+  await delay(700);await waitPause();
+  await speak(`I have 2 fine motor cars.`,3);
+  await delay(700);await waitPause();
+  await speak(`But of course, Mister Plus always wants more!`,3);
+  await delay(700);await waitPause();
+  await speak(`I want 4 more cars.`,3);
+  await delay(700);await waitPause();
+  await speak(`So how many cars will I have altogether?`,3);
+  await delay(900);await waitPause();
+
+  document.getElementById('story3').style.display='block';
+  await delay(500);await waitPause();
+  await speak(`Let's write the sum.`,3);
+
+  document.getElementById('sum3').style.display='flex';
+  await delay(600);await waitPause();
+
+  await speak(`Two plus four equals... let's find out!`,3);
+  await delay(700);await waitPause();
+  await speak(`Now, which is the biggest number? Is it 2, or is it 4?`,3);
+  await delay(900);await waitPause();
+  await speak(`It's four!`,3);
+  await delay(600);await waitPause();
+  await speak(`Even though 4 comes second in the sum, it is still the biggest.`,3);
+  await delay(700);await waitPause();
+  await speak(`So four goes in our head.`,3);
+
+  await delay(300);
+  bubbleSound();
+  const headEl=document.getElementById('head3');
+  headEl.innerHTML=`<div class="num-in-head" style="background:linear-gradient(145deg,#27AE60,#1E8449);">4</div><span style="font-size:20px;margin-left:4px;">🧠</span>`;
+  document.getElementById('working3').style.display='block';
+  await delay(600);await waitPause();
+
+  await speak(`Four is in our head!`,3);
+  await delay(700);await waitPause();
+  await speak(`Now I hold up 2 fingers on my other hand, and count on from four.`,3);
+  await delay(700);await waitPause();
+  await delay(400);await waitPause();
+
+  const fingersEl=document.getElementById('fingers3');
+  const countOns=['5','6'];
+  const fingerColors=['#E67E22','#8E44AD'];
+  for(let i=0;i<2;i++){
+    await waitPause();
+    const span=document.createElement('div');
+    span.className='finger-num';
+    span.style.background=`linear-gradient(145deg,${fingerColors[i]},${fingerColors[i]}aa)`;
+    span.style.color='#fff';
+    span.textContent=countOns[i];
+    fingersEl.appendChild(span);
+    if(!muted&&window.speechSynthesis){
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(countOns[i]);
+      u.rate=0.82;u.pitch=0.88;
+      const vs=window.speechSynthesis.getVoices();
+      const wantM=['Daniel','Google UK English Male','Microsoft David','Alex'];
+      let v=null;for(const nm of wantM){const f=vs.find(x=>x.name.includes(nm));if(f){v=f;break;}}
+      if(!v)v=vs.find(x=>x.lang.startsWith('en'))||vs[0];
+      if(v)u.voice=v;
+      await new Promise(r=>{u.onend=r;u.onerror=r;window.speechSynthesis.speak(u);});
+    } else { await delay(600); }
+    await delay(300);
+  }
+
+  await delay(300);await waitPause();
+  const ansBox=document.getElementById('s3ans');
+  ansBox.textContent='6';ansBox.classList.add('revealed');
+  await speak(`Six!`,3);
+  await delay(700);await waitPause();
+  await speak(`I'll have six motor cars altogether.`,3);
+  await delay(700);await waitPause();
+  await speak(`Two plus four equals six.`,3);
+  await delay(800);await waitPause();
+  await speak(`You're doing wonderfully!`,3);
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE 4: ACTIVITY — child types answers
+// ══════════════════════════════════════════════════════
+const SUMS=[
+  {a:1,b:3,ans:4},{a:2,b:2,ans:4},{a:5,b:2,ans:7},
+  {a:4,b:2,ans:6},{a:1,b:4,ans:5},{a:3,b:3,ans:6}
+];
+const SUMCOLORS=[
+  ['#E74C3C','#3498DB'],['#9B59B6','#E67E22'],['#27AE60','#E74C3C'],
+  ['#2980B9','#E67E22'],['#E74C3C','#27AE60'],['#8E44AD','#D35400']
+];
+
+async function sc4(){
+  goScene(4);await delay(300);
+  await speak(`Magnificent! Now it's your turn, my clever young mathematician!`,4);
+  await delay(800);await waitPause();
+  await speak(`I have six wonderful sums for you to solve all by yourself.`,4);
+  await delay(800);await waitPause();
+  await speak(`Remember my golden rule.`,4);
+  await delay(600);await waitPause();
+  await speak(`Put the biggest number in your head.`,4);
+  await delay(700);await waitPause();
+  await speak(`Then count on the smaller number with your fingers.`,4);
+  await delay(800);await waitPause();
+  await speak(`Ask Mum or Dad to check that you are counting correctly.`,4);
+  await delay(800);await waitPause();
+  await speak(`Off you go — I believe in you!`,4);
+
+  // build activity cards
+  const grid=document.getElementById('act-grid');
+  grid.innerHTML='';
+  SUMS.forEach((sum,idx)=>{
+    const [c1,c2]=SUMCOLORS[idx];
+    const card=document.createElement('div');
+    card.className='act-card';
+    card.id=`actcard${idx}`;
+
+    const biggest=Math.max(sum.a,sum.b);
+    const smallest=Math.min(sum.a,sum.b);
+
+    card.innerHTML=`
+      <div class="act-sum-row">
+        <div class="act-num" style="background:linear-gradient(145deg,${c1},${c1}cc);color:#fff;width:52px;height:58px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;">${sum.a}</div>
+        <div class="act-op">+</div>
+        <div class="act-num" style="background:linear-gradient(145deg,${c2},${c2}cc);color:#fff;width:52px;height:58px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;">${sum.b}</div>
+        <div class="act-eq">=</div>
+        <input class="act-input" id="inp${idx}" type="number" min="0" max="20" placeholder="?" inputmode="numeric" pattern="[0-9]*"/>
+      </div>
+      <div class="act-hint" id="hint${idx}">🧠 Put ${biggest} in your head — count on ${smallest} finger${smallest===1?'':'s'}!</div>
+      <button class="check-btn" id="chk${idx}" onclick="checkAnswer(${idx},${sum.ans})">✅ Check!</button>
+    `;
+    grid.appendChild(card);
+  });
+
+  // wait for all to be correct before proceeding
+  await waitAllCorrect();
+  await delay(400);await waitPause();
+  await speak(`Bravo!`,4);
+  await delay(700);await waitPause();
+  await speak(`You solved all of the sums!`,4);
+  await delay(700);await waitPause();
+  await speak(`You are a truly remarkable mathematician.`,4);
+  await delay(700);await waitPause();
+  await speak(`Mister Plus is very, very proud of you! Ha-ha!`,4);
+}
+
+function checkAnswer(idx,correct){
+  const inp=document.getElementById('inp'+idx);
+  const card=document.getElementById('actcard'+idx);
+  const hint=document.getElementById('hint'+idx);
+  const btn=document.getElementById('chk'+idx);
+  const val=parseInt(inp.value);
+
+  if(isNaN(val)||inp.value.trim()===''){
+    hint.textContent='Please type a number first!';hint.classList.add('show-hint');return;
+  }
+
+  if(val===correct){
+    inp.classList.remove('wrong');inp.classList.add('correct');
+    card.classList.remove('wrong');card.classList.add('correct');
+    hint.textContent='✅ Correct! Well done!';hint.classList.remove('show-hint');
+    btn.disabled=true;inp.disabled=true;
+    solvedCount++;
+    if(solvedCount===SUMS.length&&solvedResolve) solvedResolve();
+  } else {
+    inp.classList.remove('correct');inp.classList.add('wrong');
+    card.classList.remove('correct');card.classList.add('wrong');
+    beep();
+    const biggest=Math.max(...SUMS[idx].a>SUMS[idx].b?[SUMS[idx].a,SUMS[idx].b]:[SUMS[idx].b,SUMS[idx].a]);
+    const smallest=Math.min(SUMS[idx].a,SUMS[idx].b);
+    hint.textContent=`Not quite! Ask Mum or Dad to help. Put ${biggest} in your head, count on ${smallest}!`;
+    hint.classList.add('show-hint');
+    setTimeout(()=>{inp.classList.remove('wrong');card.classList.remove('wrong');},600);
+  }
+}
+
+let solvedCount=0,solvedResolve=null;
+function waitAllCorrect(){
+  solvedCount=0;
+  return new Promise(r=>{solvedResolve=r;});
+}
+
+// ══════════════════════════════════════════════════════
+// SCENE 5: WELL DONE — CELEBRATION + FEEDBACK PROMPT
+// ══════════════════════════════════════════════════════
+async function sc5(){
+  goScene(5);await delay(300);
+  launchConfetti();
+  await speak(`Ha-ha-ha!`,5);
+  await delay(600);await waitPause();
+  await speak(`BRAVO! What an absolutely superb performance!`,5);
+  await delay(800);await waitPause();
+  await speak(`You got every single sum correct!`,5);
+  await delay(800);await waitPause();
+  await speak(`You have mastered the art of plus — the most magnificent sign in all of mathematics!`,5);
+  await delay(900);await waitPause();
+  await speak(`You know that plus always means MORE.`,5);
+  await delay(700);await waitPause();
+  await speak(`You know to put the biggest number in your head, and count on with your fingers.`,5);
+  await delay(900);await waitPause();
+  launchConfetti();
+  await speak(`Mister Plus tips his top hat to you, you magnificent young mathematician!`,5);
+  await delay(700);await waitPause();
+  await speak(`You are a true addition superstar!`,5);
+  await delay(800);await waitPause();
+  await speak(`Until next time — keep adding, keep growing, and always want MORE! Good day!`,5);
+  await delay(900);await waitPause();
+  // Auto-show feedback form
+  showFeedbackSection();
+}
+
+// ══════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════
+function launchConfetti(){
+  const cols=['#FFD700','#FFA500','#E74C3C','#27AE60','#3498DB','#9B59B6','#E8112D','#FDBCB4'];
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div');
+    p.className='cparticle';
+    p.style.cssText=`left:${Math.random()*100}%;top:-24px;
+      background:${cols[i%cols.length]};
+      width:${7+Math.random()*11}px;height:${7+Math.random()*11}px;
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation-delay:${Math.random()*1.8}s;
+      animation-duration:${2.0+Math.random()*1.8}s;`;
+    document.body.appendChild(p);
+  }
+  setTimeout(()=>{document.querySelectorAll('.cparticle').forEach(p=>p.remove());},6000);
+}
+
+// ══════════════════════════════════════════════════════
+// FULL FEEDBACK SECTION
+// ══════════════════════════════════════════════════════
+let fbStarRating=0;
+function showFeedbackSection(){
+  const sec=document.getElementById('feedback-section');
+  sec.style.display='block';
+  sec.scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('fbc-date').value=new Date().toISOString().slice(0,10);
+  // init star clicks
+  document.querySelectorAll('.fb-star2').forEach(st=>{
+    st.onclick=()=>{
+      fbStarRating=parseInt(st.dataset.v);
+      document.querySelectorAll('.fb-star2').forEach((s,i)=>s.classList.toggle('on',i<fbStarRating));
+    };
+  });
+}
+
+async function submitFullFeedback(){
+  const data={
+    'form-name':     'mrplus-feedback',
+    'child-name':    document.getElementById('fbc-child').value,
+    'parent-name':   document.getElementById('fbc-parent').value,
+    'date-completed':document.getElementById('fbc-date').value,
+    'completion':    document.getElementById('fbc-completion').value,
+    'rating-addition':fbStarRating+' star(s)',
+    'strategy':      document.getElementById('fbc-strategy').value,
+    'comments':      document.getElementById('fbc-comments').value
+  };
+  try{
+    await fetch('/',{method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams(data).toString()});
+  }catch(e){}
+  document.getElementById('fb-full-form').style.display='none';
+  document.getElementById('fb-full-thanks').style.display='block';
+  launchConfetti();
+  // Mr. Plus says thank you
+  if(window.speechSynthesis){
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance("Thank you so much for your wonderful feedback! Until next time — keep adding, keep growing, and always want more! Good day!");
+    u.rate=0.88;u.pitch=0.88;
+    const vs=window.speechSynthesis.getVoices();
+    const wantM=['Daniel','Google UK English Male','Microsoft David','Alex'];
+    let v=null;for(const nm of wantM){const f=vs.find(x=>x.name.includes(nm));if(f){v=f;break;}}
+    if(!v)v=vs.find(x=>x.lang.startsWith('en'))||vs[0];
+    if(v)u.voice=v;
+    window.speechSynthesis.speak(u);
+  }
+}
+
+// Legacy modal (kept for compatibility)
+function openFB(){showFeedbackSection();}
+function closeFB(){document.getElementById('fb-overlay').classList.remove('open');}
+function selE(el,v){document.querySelectorAll('.fb-e').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');selEmoji=v;}
+function sendFB(){
+  if(!selEmoji){alert('Please tap an emoji first!');return;}
+  const name=document.getElementById('fb-name').value.trim();
+  const note=document.getElementById('fb-note').value.trim();
+  const msg=`🎩 *Mr. Plus Feedback — Balmoral Primary*\nChild: ${name||'(not given)'}\nResult: ${selEmoji}\n`+(note?`Note: ${note}\n`:'')+`Lesson: Addition (Plus) – Grade 1`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+  document.getElementById('fb-thanks').style.display='block';document.querySelector('.fb-btns').style.display='none';
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+window.speechSynthesis&&window.speechSynthesis.getVoices();
+window.speechSynthesis&&(window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices());
+injectAvatars();
+</script>
+</body>
+</html>
